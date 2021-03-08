@@ -1,0 +1,2 @@
+# RotationAdXOV_Generator
+ローテAdXOV用ジェネレータのVueプロジェクトが保管されるとこ
