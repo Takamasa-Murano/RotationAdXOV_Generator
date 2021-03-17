@@ -11,7 +11,7 @@ body {
     width: 70px;
 }
 #aladdinTag{
-    width: 100%;
+    width: 75% !important;
 }
 select {
     background-color:white;
@@ -20,8 +20,18 @@ select {
     width: 80%;
     height:150px;
 }
+#toIcon {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    font-size:  60px;
+    color: #000000;
+    font-weight: bold;
+}
 #output {
-    margin-left:60%;
+    margin-left:55%;
     border: solid 3px black;
     text-align: left;
     background-color: #BBBBBB; 

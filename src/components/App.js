@@ -93,7 +93,26 @@ export default {
       if (this.aladdinTag === "") return;
       var aladdinTagSrc = this.aladdinTag.split('src="')[1].split('">')[0];
       var selectCSS = this.zoneType === "スタンダードバナー" ? "forAsyncSB.css" : "forAsyncOV.css";
-      this.creativeTag = "<div class=\"gnROV\" data-ad-src=\"" + aladdinTagSrc + "\" data-zoneid=\"" + this.zoneId + "\" data-rotate-interval=\"" + this.rotateStatus.period + "\" data-rotate-count=\"" + this.rotateStatus.count + "\" data-is-wheel-in=\"" + this.rotateStatus.isWheelIn + "\" data-remove-bottom-space=\"" + this.rotateStatus.isRemoveBottomSpace + "\" data-remove-bottom-space-plus-translate=\"" + this.rotateStatus.isUpshift + "\" data-oicon-border=\"" + this.rotateStatus.iconSize + "\" data-is-refresh=\"true\" style=\"height: " + this.height + "px;\">\n  <iframe class=\"gnROVin\"></iframe>\n</div>\n<link rel=\"stylesheet\" type=\"text/css\" href=\"https://works.gsspcln.jp/w/ad_format/" + selectCSS + "\"></link>\n<script type=\"text/javascript\" src=\"https://works.gsspcln.jp/w/ad_format/gnRotateBannerPrd_v2.js\"></scr" + "ipt>\n<script>\n  window.top.addEventListener(\"message\", function (e) {\n    if(e.data.action === \"linkNotification\") window.top.open(e.data.message, \"_top\");\n  }, false);\n</scr" + "ipt>"
+      this.creativeTag = "<div class=\"gnROV\" data-ad-src=\"" + aladdinTagSrc + "\" data-zoneid=\"" + this.zoneId + "\" data-rotate-interval=\"" + this.rotateStatus.period + "\" data-rotate-count=\"" + this.rotateStatus.count + "\" data-is-wheel-in=\"" + this.rotateStatus.isWheelIn + "\" data-remove-bottom-space=\"" + this.rotateStatus.isRemoveBottomSpace + "\" data-remove-bottom-space-plus-translate=\"" + this.rotateStatus.isUpshift + "\" data-oicon-border=\"" + this.rotateStatus.iconSize + "\" data-is-refresh=\"true\" style=\"height: " + this.height + "px;\">\n  <iframe class=\"gnROVin\"></iframe>\n</div>\n<link rel=\"stylesheet\" type=\"text/css\" href=\"https://works.gsspcln.jp/w/ad_format/" + selectCSS + "\"></link>\n<script type=\"text/javascript\" src=\"https://works.gsspcln.jp/w/ad_format/gnRotateBannerPrd_v2.js\"></scr" + "ipt>\n<script>\n  window.top.addEventListener(\"message\", function (e) {\n    if(e.data.action === \"linkNotification\") window.top.open(e.data.message, \"_top\");\n  }, false);\n</scr" + "ipt>";
+      if (this.isExtendIn === "Aladdin配信時のみ" && this.deliveryViaGAM === "GAM経由配信"){
+        var aladdinExtendCode = "<script>\n    (function (window, document) {\n        window.addEventListener('load', function () {\n            if (typeof window.__gn_gam_expand_params === 'undefined') return;\n            var s = parent.window.innerWidth / 320,\n                BOOTS_HEIGHT = 0;\n            var a = parent.document.getElementById('geniee_overlay_outer');\n\n             a.style.webkitTransform = 'scale(' + s + ')';\n            a.style.webkitTransformOrigin = 'bottom';\n            a.style.transform = 'scale(' + s + ')';\n            a.style.transformOrigin = 'bottom';\n\n             if (parent.document.getElementById('gn_expand_area') !== null) {\n                a.style.bottom = BOOTS_HEIGHT * s + 'px';\n            }\n\n             var b = document.getElementsByClassName('gnROVin')[0].contentWindow.document.getElementById('geniee_overlay');\n\n             b.style.webkitTransform = 'scale(1)';\n            b.style.transform = 'scale(1)';\n        }, false);\n    })(window, document);\n</scr" + "ipt>";
+        this.creativeTag += aladdinExtendCode;
+        this.append += "<script>\n    parent.window.__gn_gam_expand_params = true;\n</scr" + "ipt>\n";
+      }
+      if (this.rotateStatus.isUpshift && this.deliveryViaGAM === "GAM経由配信"){
+        var aladdinUpshiftCode = "<script>\n    (function (window, document) {\n        window.addEventListener('load', function () {\n            if (typeof window.__gn_gam_upshift_params === 'undefined') return;\n            var a = document.getElementsByClassName('gnROVin')[0].contentWindow.document.getElementById('geniee_overlay'),\n                d = parent.document,\n                w = parent.window,\n                h = 0,\n                ov_base = d.getElementById('geniee_overlay_outer'),\n                banner_height = parseFloat(a.style.height),\n                boots_height = 0,\n                s = parent.window.innerWidth / 320;\n            if (d.getElementById('gn_outer_expand_area')) boots_height = parseFloat(d.getElementById('gn_outer_expand_area').style.height);\n\n             w.addEventListener('scroll', function () {\n                h = Math.max.apply(null, [d.body.clientHeight, d.body.scrollHeight, d.documentElement.scrollHeight, d.documentElement.clientHeight]);\n                var sc_top = d.body.scrollTop || d.documentElement.scrollTop,\n                    scr_h = w.innerHeight;\n                if (h <= sc_top + scr_h + banner_height + boots_height) {\n                    ov_base.style.bottom = '';\n                    ov_base.style.top = '0px';\n                    ov_base.style.webkitTransformOrigin = 'top';\n                    ov_base.style.transformOrigin = 'top';\n                } else {\n                    ov_base.style.bottom = '0px';\n                    ov_base.style.top = '';\n                    ov_base.style.webkitTransformOrigin = 'bottom';\n                    ov_base.style.transformOrigin = 'bottom';\n                }\n            }, false);\n        }, false);\n    })(window, document);\n</scr" + "ipt>";
+        this.creativeTag += aladdinUpshiftCode;
+        this.append += "\n<script>\n    parent.window.__gn_gam_upshift_params = true;\n</scr" + "ipt>\n";
+      }
+      if (this.closeButtonAdd ===  "Aladdin配信時のみ" && this.deliveryViaGAM === "GAM経由配信"){
+        var aladdinCloseButtonPosition = "";
+        aladdinCloseButtonPosition = "closeIcon.style.left = \"0px\";\n";
+        if (this.closeButtonStatus.closeButtonPos === "左") aladdinCloseButtonPosition = "closeIcon.style.left = \"0px\";\n";
+        else if (this.closeButtonStatus.closeButtonPos === "中央") aladdinCloseButtonPosition = "";
+        else if (this.closeButtonStatus.closeButtonPos === "右") aladdinCloseButtonPosition = "closeIcon.style.right = \"0px\";\n";
+        var aladdinCloseButtonCode = "<script>\n    var geniee_overlay = parent.document.getElementById('geniee_overlay_outer');\n    var closeIcon = document.createElement('img');\n    var buttonSize = " + this.closeButtonStatus.closeButtonSize + ";\n    closeIcon.src = '" + this.closeButtonStatus.closeButtonUrl + "';\n    closeIcon.style.width = buttonSize + 'px';\n    closeIcon.style.height = buttonSize + 'px';\n    closeIcon.style.position = 'absolute';\n    closeIcon.style.top = '-' + buttonSize + 'px';\n    " + aladdinCloseButtonPosition + "\n    var gn_delivery = geniee_overlay.getElementsByTagName('div')[1];\n    geniee_overlay.getElementsByTagName('div')[0].insertBefore(closeIcon, gn_delivery);\n    closeIcon.addEventListener('click',function(){\n        document.getElementsByClassName('gnROV')[0].dataset['isRefresh'] = 'false';\n        geniee_overlay.style.display = 'none';\n    });\n</scr" + "ipt>\n";
+        this.creativeTag += aladdinCloseButtonCode;
+      }
     },
 
 
@@ -101,7 +120,7 @@ export default {
       var headTag = this.normalGAMheadTag;
       var bodyTag = this.normalGAMbodyTag;
       this.GAMheadTag = headTagProcess(headTag, this.zoneId);
-      this.GAMbodyTag = bodyTagProcess(bodyTag, this.zoneId);
+      this.GAMbodyTag = bodyTagProcess(bodyTag, this.zoneId, this.isExtendIn, this.closeButtonAdd, this.closeButtonStatus);
       
       function replaceSearch (target, start, end){
           let s = target.indexOf(start),
@@ -118,7 +137,7 @@ export default {
       }
 
       function bodyTagProcess (normal, zoneId, isExtendIn, closeButtonAdd, closeButtonStatus) {
-        var divId = new RegExp(replaceSearch(normal, "'div-gpt-ad-", "' style").slice(1).slice(0,-7), "g");
+        var divId = new RegExp(replaceSearch(normal, "'div-gpt-ad-", "'").slice(1).slice(0,-1), "g");
         
         normal = normal.replace(divId, zoneId);
         var tag = "<div id=\"geniee_overlay_outer\" style=\"position:fixed; bottom: 0px;left:0px; right:0px; margin:auto; z-index:1000000000;width:100%;\">\n  " + normal + "\n</div>";

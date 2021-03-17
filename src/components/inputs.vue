@@ -111,6 +111,8 @@
     
   </div>
   
+  <span id="toIcon">→</span>
+  
   <div id="output">
     
     <div>ゾーンタイプ
