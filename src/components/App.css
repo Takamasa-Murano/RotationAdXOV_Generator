@@ -1,0 +1,67 @@
+body {
+    background-color: #DDDDDD;
+    color: black;
+}
+#input {
+    float:left;
+    max-width:49%;
+    text-align: left;
+}
+#input input {
+    width: 70px;
+}
+#aladdinTag, #closeButtonImageUrl {
+    width: 75% !important;
+}
+select {
+    background-color:white;
+}
+.GAMinput {
+    width: 80%;
+    height:150px;
+}
+#toIcon {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    font-size:  60px;
+    color: #000000;
+    font-weight: bold;
+}
+#output {
+    margin-left:55%;
+    border: solid 3px black;
+    text-align: left;
+    background-color: #BBBBBB; 
+}
+#output > * {
+    padding-left: 5px;
+}
+#output > div {
+    border-top: solid 1px #333333;
+}
+#output > div * {
+    margin-left: 5px;
+}
+#output .outputText {
+    width: 96%;
+    height:150px;
+}
+#zonetypeOutput {
+    width:150px;
+    height:18px;
+}
+#closeButtonImage {
+    margin-left: 20px;
+}
+#closeButtonImage > span {
+    font-size:10px;
+    margin-left: 20px;
+}
+#closeButtonImageElm{
+    width:20px;
+    height:20px;
+    margin-left:3px;
+}
