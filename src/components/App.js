@@ -119,8 +119,8 @@ export default {
     processingGAMTag: function () {
       var headTag = this.normalGAMheadTag;
       var bodyTag = this.normalGAMbodyTag;
-      this.GAMheadTag = headTagProcess(headTag, this.zoneId);
-      this.GAMbodyTag = bodyTagProcess(bodyTag, this.zoneId, this.isExtendIn, this.closeButtonAdd, this.closeButtonStatus);
+      this.GAMheadTag = headTagProcess(headTag, this.zoneId, this.isExtendIn, this.closeButtonAdd, this.closeButtonStatus, this.prBarStatus);
+      this.GAMbodyTag = bodyTagProcess(bodyTag, this.zoneId);
       
       function replaceSearch (target, start, end){
           let s = target.indexOf(start),
@@ -129,21 +129,49 @@ export default {
               result = target.slice(s, e);
           return result;
       }
-      function headTagProcess (normal, zoneId) {
+      function headTagProcess (normal, zoneId, isExtendIn, closeButtonAdd, closeButtonStatus, prBarStatus) {
         var divId = replaceSearch(normal, "'div-gpt-ad-", "')").slice(1).slice(0,-2);
         var tag = normal.replace(divId, zoneId);
+        
+        var forGAMChange = false;
+          var tagPlusCode = "    \ngoogletag.pubads().addEventListener('slotRenderEnded', function(event) {\n            if (event.slot !== targetSlot) return;\n            var geniee_overlay_outer = parent.document.getElementById('geniee_overlay_outer');\n            if (geniee_overlay_outer.getElementsByTagName('iframe') === null) return;\n            if (geniee_overlay_outer.getElementsByTagName('iframe').length) {\n                var geniee_overlay_outer = document.getElementById('geniee_overlay_outer');\n                ";
+          
+          if (isExtendIn === "Aladdin配信時・AdX配信時ともに") {
+              forGAMChange = true;
+              var tagExtendCode = "var s = parent.window.innerWidth / geniee_overlay_outer.getElementsByTagName('iframe')[0].clientWidth,\n                    BOOTS_HEIGHT = " + prBarStatus.prTextHeight + ";\n                geniee_overlay_outer.style.webkitTransform = 'scale(' + s + ')';\n                geniee_overlay_outer.style.webkitTransformOrigin = 'bottom';\n                geniee_overlay_outer.style.transform = 'scale(' + s + ')';\n                geniee_overlay_outer.style.transformOrigin = 'bottom';\n                if (parent.document.getElementById('gn_expand_area') !== null) {\n                    geniee_overlay_outer.style.bottom = BOOTS_HEIGHT * s + 'px';\n                }\n                ";
+              tagPlusCode += tagExtendCode;
+          }
+          if (closeButtonAdd === "Aladdin配信時・AdX配信時ともに") {
+              forGAMChange = true;
+              var tagCloseButtonPosition = "";
+              tagCloseButtonPosition = "closeIcon.style.left = \"0px\";\n";
+              if (closeButtonStatus.closeButtonPos === "左") tagCloseButtonPosition = "closeIcon.style.left = \"0px\";\n";
+              else if (closeButtonStatus.closeButtonPos === "中央") tagCloseButtonPosition = "";
+              else if (closeButtonStatus.closeButtonPos === "右") tagCloseButtonPosition = "closeIcon.style.right = \"0px\";\n";
+              var tagCloseButtonCode = "var closeIcon = document.createElement('img');\n                var BUTTON_WIDTH = " + closeButtonStatus.closeButtonSize + ";\n                closeIcon.src = '" + closeButtonStatus.closeButtonUrl + "';\n                closeIcon.style.width = BUTTON_WIDTH + 'px';\n                closeIcon.style.verticalAlign = 'bottom';\n                    " + tagCloseButtonPosition + "    closeIcon.addEventListener('click', function () {\n                    geniee_overlay_outer.style.display = 'none';\n                });\n                geniee_overlay_outer.getElementsByTagName('div')[0].insertBefore(closeIcon, geniee_overlay_outer.getElementsByTagName('div')[1]);\n                ";
+              tagPlusCode += tagCloseButtonCode;
+          }
+
+          if (isExtendIn !== "Aladdin配信時・AdX配信時ともに" && closeButtonAdd !== "Aladdin配信時・AdX配信時ともに") forGAMChange = false;
+          
+          if (forGAMChange) {
+              var headTagInsertPosition = tag.indexOf("googletag.enableServices();") + 27;
+              var firstHead = tag.slice(0, headTagInsertPosition);
+              var secondHead = tag.slice(headTagInsertPosition);
+              tag = firstHead + tagPlusCode + "            }\n            geniee_overlay_outer.style.opacity = '1';\n        });\n" + secondHead;
+          }
 
         return tag;
       }
 
-      function bodyTagProcess (normal, zoneId, isExtendIn, closeButtonAdd, closeButtonStatus) {
+      function bodyTagProcess (normal, zoneId) {
         var divId = new RegExp(replaceSearch(normal, "'div-gpt-ad-", "'").slice(1).slice(0,-1), "g");
         
         normal = normal.replace(divId, zoneId);
         var tag = "<div id=\"geniee_overlay_outer\" style=\"position:fixed; bottom: 0px;left:0px; right:0px; margin:auto; z-index:1000000000;width:100%;\">\n  " + normal + "\n</div>";
-        if (isExtendIn === "Aladdin配信時・AdX配信時ともに") tag += "<script>\n    (function (window, document) {\n        window.addEventListener(\"load\", function () {\n            setTimeout(function () {\n                var geniee_overlay_outer = parent.document.getElementById(\"geniee_overlay_outer\");\n\n                 if (geniee_overlay_outer.getElementsByTagName(\"iframe\").length) {\n                    var s = parent.window.innerWidth / geniee_overlay_outer.getElementsByTagName(\"iframe\")[0].clientWidth,\n                        BOOTS_HEIGHT = 0;\n                    geniee_overlay_outer.style.webkitTransform = \"scale(\" + s + \")\";\n                    geniee_overlay_outer.style.webkitTransformOrigin = \"bottom\";\n                    geniee_overlay_outer.style.transform = \"scale(\" + s + \")\";\n                    geniee_overlay_outer.style.transformOrigin = \"bottom\";\n\n                    if (parent.document.getElementById(\"gn_expand_area\") !== null) {\n                        geniee_overlay_outer.style.bottom = BOOTS_HEIGHT * s + \"px\";\n                    }\n                }\n            }, 500);\n        }, false);\n    })(window, document);\n</scr" + "ipt>\n"
+        //if (isExtendIn === "Aladdin配信時・AdX配信時ともに") tag += "<script>\n    (function (window, document) {\n        window.addEventListener(\"load\", function () {\n            setTimeout(function () {\n                var geniee_overlay_outer = parent.document.getElementById(\"geniee_overlay_outer\");\n\n                 if (geniee_overlay_outer.getElementsByTagName(\"iframe\").length) {\n                    var s = parent.window.innerWidth / geniee_overlay_outer.getElementsByTagName(\"iframe\")[0].clientWidth,\n                        BOOTS_HEIGHT = 0;\n                    geniee_overlay_outer.style.webkitTransform = \"scale(\" + s + \")\";\n                    geniee_overlay_outer.style.webkitTransformOrigin = \"bottom\";\n                    geniee_overlay_outer.style.transform = \"scale(\" + s + \")\";\n                    geniee_overlay_outer.style.transformOrigin = \"bottom\";\n\n                    if (parent.document.getElementById(\"gn_expand_area\") !== null) {\n                        geniee_overlay_outer.style.bottom = BOOTS_HEIGHT * s + \"px\";\n                    }\n                }\n            }, 500);\n        }, false);\n    })(window, document);\n</scr" + "ipt>\n"
       
-        if (closeButtonAdd === "Aladdin配信時・AdX配信時ともに"){
+        /*if (closeButtonAdd === "Aladdin配信時・AdX配信時ともに"){
           var closeButtonElement = " \n<div id=\"geniee_overlay_inner\" style=\"position: relative;margin: auto; width: 320px;\">\n        <img src=\"" + closeButtonStatus.closeButtonUrl +"\" width=\"" + closeButtonStatus.closeButtonSize +"\" height=\"" + closeButtonStatus.closeButtonSize +"\" id=\"geniee_overlay_close\" style=\"position: absolute; top: -" + closeButtonStatus.closeButtonSize +"px;"; // left: 0;\">\n ";
           if (closeButtonStatus.closeButtonPos === "左") closeButtonElement += "left: 0;\">\n ";
           else if (closeButtonStatus.closeButtonPos === "右") closeButtonElement += "right: 0;\">\n ";
@@ -162,7 +190,7 @@ export default {
           tag = tag.slice(0,divide2pos) + " </div>\n    " + tag.slice(divide2pos);
         
           tag += "<script>\n    (function (window, document) {\n        var geniee_overlay_outer = document.getElementById(\"geniee_overlay_outer\");\n        var geniee_overlay_inner = document.getElementById(\"geniee_overlay_inner\");\n        var closeIcon = document.getElementById(\"geniee_overlay_close\");\n\n         closeIcon.addEventListener(\"click\", function () {\n            geniee_overlay_outer.getElementsByTagName(\"iframe\")[0].contentWindow.document.getElementsByClassName(\"gnROV\")[0].dataset[\"isRefresh\"] = \"false\";\n           geniee_overlay_outer.style.display = \"none\";\n        });\n        window.addEventListener(\"load\", function () {\n            setTimeout(function () {\n                if (geniee_overlay_outer.getElementsByTagName(\"iframe\").length) {\n                    var iframe = geniee_overlay_outer.getElementsByTagName(\"iframe\")[0];\n                    var iframeWidth = iframe.clientWidth;\n                    geniee_overlay_inner.style.width = iframeWidth + \"px\";\n                    document.getElementById(\"" + zoneId + "\").style.margin = \"0\";\n                }\n                geniee_overlay_outer.style.opacity = \"1\";\n            }, 2000);\n        }, false);\n    })(window, document);\n</scr" + "ipt>\n";
-        }
+        }*/
         return tag;
       }
     },

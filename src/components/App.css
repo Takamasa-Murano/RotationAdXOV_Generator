@@ -10,7 +10,7 @@ body {
 #input input {
     width: 70px;
 }
-#aladdinTag{
+#aladdinTag, #closeButtonImageUrl {
     width: 75% !important;
 }
 select {
